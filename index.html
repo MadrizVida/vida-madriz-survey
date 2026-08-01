@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vida Madriz — Pre-Launch Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --plum: #241226;
+    --plum-2: #34193b;
+    --gold: #d9a441;
+    --coral: #e2637a;
+    --cream: #f7ecd9;
+    --cream-dim: #cdbfae;
+    --line: rgba(247,236,217,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(120% 140% at 20% -10%, #3b1f42 0%, var(--plum) 55%, #170a1a 100%);
+    color: var(--cream);
+    font-family: 'Work Sans', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+  .app{
+    width:100%;
+    max-width:560px;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    letter-spacing:0.02em;
+  }
+  .brand em{ color:var(--gold); font-style:normal; }
+  .langtoggle{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:999px;
+    overflow:hidden;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+  }
+  .langtoggle button{
+    background:transparent;
+    border:none;
+    color:var(--cream-dim);
+    padding:7px 14px;
+    cursor:pointer;
+    letter-spacing:0.06em;
+  }
+  .langtoggle button.active{
+    background:var(--gold);
+    color:var(--plum);
+    font-weight:600;
+  }
+  .progress-track{
+    height:4px;
+    border-radius:4px;
+    background:rgba(247,236,217,0.1);
+    overflow:hidden;
+    margin-bottom:34px;
+    position:relative;
+  }
+  .progress-fill{
+    height:100%;
+    border-radius:4px;
+    background:linear-gradient(90deg, var(--gold), var(--coral), var(--plum-2));
+    transition: width 0.5s ease;
+  }
+  .progress-dot{
+    position:absolute;
+    top:50%;
+    width:10px;height:10px;border-radius:50%;
+    background:var(--cream);
+    box-shadow:0 0 8px rgba(247,236,217,0.7);
+    transform:translate(-50%,-50%);
+    transition: left 0.5s ease;
+  }
+  .card{
+    background: rgba(247,236,217,0.04);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:34px 30px;
+    animation: rise 0.45s ease;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--gold);
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  h1.hero{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:30px;
+    line-height:1.25;
+    margin:0 0 14px;
+  }
+  p.body-text{
+    font-size:15px;
+    line-height:1.65;
+    color:var(--cream-dim);
+    margin:0 0 26px;
+  }
+  h2.qtitle{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:23px;
+    line-height:1.35;
+    margin:0 0 8px;
+  }
+  p.qdesc{
+    font-size:13.5px;
+    color:var(--cream-dim);
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+  .options{ display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
+  .opt{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:13px 16px;
+    cursor:pointer;
+    transition: all 0.15s ease;
+    font-size:14.5px;
+  }
+  .opt:hover{ border-color: var(--gold); background: rgba(217,164,65,0.06); }
+  .opt.selected{ border-color: var(--gold); background: rgba(217,164,65,0.12); }
+  .opt .mark{
+    width:18px;height:18px;
+    border:1.5px solid var(--cream-dim);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .opt.radio .mark{ border-radius:50%; }
+  .opt.checkbox .mark{ border-radius:5px; }
+  .opt.selected .mark{ border-color: var(--gold); background: var(--gold); }
+  .opt.selected.radio .mark::after{ content:''; width:8px;height:8px;border-radius:50%; background:var(--plum); }
+  .opt.selected.checkbox .mark::after{ content:'✓'; font-size:12px; color:var(--plum); font-weight:700; }
+
+  select.dropdown{
+    width:100%;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background: var(--plum-2);
+    color: var(--cream);
+    font-size:14.5px;
+    font-family:'Work Sans', sans-serif;
+  }
+  .rating-row{ display:flex; gap:8px; margin-bottom:6px; }
+  .rating-cell{
+    flex:1;
+    text-align:center;
+    padding:14px 4px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+  }
+  .rating-cell.selected{ border-color:var(--gold); background:rgba(217,164,65,0.15); }
+  .rating-labels{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--cream-dim); margin-bottom:22px; }
+
+  input[type=text], input[type=email], input[type=tel]{
+    width:100%;
+    padding:13px 16px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background: rgba(247,236,217,0.04);
+    color:var(--cream);
+    font-size:14.5px;
+    font-family:'Work Sans', sans-serif;
+    margin-bottom:16px;
+  }
+  input::placeholder{ color: rgba(205,191,174,0.55); }
+  label.field-label{
+    display:block;
+    font-size:12.5px;
+    color:var(--cream-dim);
+    margin-bottom:7px;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.03em;
+  }
+  .consent-row{
+    display:flex; gap:12px; align-items:flex-start;
+    margin: 6px 0 24px;
+    font-size:13.5px;
+    color:var(--cream-dim);
+    cursor:pointer;
+    line-height:1.5;
+  }
+  .consent-row .mark{
+    margin-top:2px;
+    width:18px;height:18px;
+    border:1.5px solid var(--cream-dim);
+    border-radius:5px;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .consent-row .mark.checked{
+    border-color:var(--gold);
+    background:var(--gold);
+  }
+  .consent-row .mark.checked::after{
+    content:'✓';
+    font-size:12px;
+    color:var(--plum);
+    font-weight:700;
+  }
+  .field-error{ font-size:12.5px; color: var(--coral); margin:-10px 0 14px; }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:26px; }
+  .btn{
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:999px;
+    padding:13px 26px;
+    cursor:pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{ background: linear-gradient(90deg, var(--gold), var(--coral)); color:var(--plum); }
+  .btn-primary:disabled{ opacity:0.35; cursor:not-allowed; }
+  .btn-ghost{ background:transparent; color: var(--cream-dim); padding:13px 8px; }
+  .btn-ghost:hover{ color: var(--cream); }
+  .required-flag{ font-size:12px; color: var(--coral); font-family:'IBM Plex Mono', monospace; }
+  .hint-error{ font-size:12.5px; color: var(--coral); margin-top:-4px; margin-bottom:14px; display:none; }
+  .closing-icon{ font-size:32px; margin-bottom:12px; }
+  .footer-note{ text-align:center; margin-top:20px; font-size:12px; color: var(--cream-dim); opacity:0.7; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">Vida <em>Madriz</em></div>
+    <div class="langtoggle">
+      <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="btn-es" onclick="setLang('es')">ES</button>
+    </div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    <div class="progress-dot" id="progressDot" style="left:0%"></div>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footer-note" id="footerNote"></div>
+</div>
+
+<script>
+/* ---------- CONFIG: fill these in with your Supabase project values ---------- */
+const SUPABASE_URL = "https://bfbanoouvicboetzhprm.supabase.co"; // already filled in for you
+const SUPABASE_ANON_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE"; // paste your sb_publishable_... key here
+/* ------------------------------------------------------------------------------ */
+
+let supabaseClient = null;
+try{
+  if(SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 10){
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ console.warn("Supabase not configured yet", e); }
+
+let lang = 'en';
+let stepIndex = 0;
+let answers = {};
+let vidaList = { first_name:'', email:'', whatsapp:'', pref_lang:'', consent:false };
+
+function setLang(l){
+  lang = l;
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  render();
+}
+
+const T = {
+  en: {
+    start: "Start", next: "Next", back: "Back", submit: "Submit",
+    required: "Required", selectUpTo2: "Select up to two", chooseOne: "Choose one",
+    errorRequired: "Please answer this question to continue.",
+    footer: "Vida Madriz Society — 2-minute pre-launch survey"
+  },
+  es: {
+    start: "Comenzar", next: "Siguiente", back: "Atrás", submit: "Enviar",
+    required: "Obligatorio", selectUpTo2: "Elige hasta dos", chooseOne: "Elige una opción",
+    errorRequired: "Por favor responde esta pregunta para continuar.",
+    footer: "Vida Madriz Society — encuesta previa al lanzamiento (2 minutos)"
+  }
+};
+
+const intro = {
+  en: {
+    title: "We're creating Vida Madriz Society",
+    body: "A women-led Spanglish tardeo in Madrid built around dancing, international music and a carefully shaped social atmosphere. This survey takes around two minutes and will help us plan the first Vida Madriz event."
+  },
+  es: {
+    title: "Estamos creando Vida Madriz Society",
+    body: "Un tardeo Spanglish liderado por mujeres en Madrid, construido en torno al baile, la música internacional y un ambiente social cuidadosamente diseñado. Esta encuesta dura unos dos minutos y nos ayudará a planificar el primer evento de Vida Madriz."
+  }
+};
+
+const questions = [
+  { id:'q1', type:'single',
+    en:{ title:"What is your connection to Madrid?", options:[
+      "I live in Madrid","I recently moved to Madrid","I visit Madrid regularly","I do not currently live in Madrid"] },
+    es:{ title:"¿Cuál es tu relación con Madrid?", options:[
+      "Vivo en Madrid","Me mudé recientemente a Madrid","Visito Madrid con frecuencia","Actualmente no vivo en Madrid"] } },
+
+  { id:'q2', type:'dropdown',
+    en:{ title:"What age group are you in?", options:["21–24","25–29","30–34","35–39","40–44","45+"] },
+    es:{ title:"¿En qué grupo de edad te encuentras?", options:["21–24","25–29","30–34","35–39","40–44","45+"] } },
+
+  { id:'q3', type:'single',
+    en:{ title:"Which language mix would you prefer at the event?", options:[
+      "Mainly English","Mainly Spanish","A natural mix of English and Spanish"] },
+    es:{ title:"¿Qué mezcla de idiomas preferirías en el evento?", options:[
+      "Principalmente inglés","Principalmente español","Una mezcla natural de inglés y español"] } },
+
+  { id:'q4', type:'multi', max:2,
+    en:{ title:"Which parts of the Vida Madriz concept appeal to you most?", options:[
+      "Dancing from early evening","A strong DJ and music journey","Meeting new people without formal networking",
+      "A women-led social atmosphere","Bringing an invited friend"] },
+    es:{ title:"¿Qué aspectos del concepto de Vida Madriz te resultan más atractivos?", options:[
+      "Bailar desde el principio de la tarde","Un DJ con un recorrido musical potente","Conocer gente nueva sin networking formal",
+      "Un ambiente social liderado por mujeres","Traer a una amiga invitada"] } },
+
+  { id:'q5', type:'single',
+    en:{ title:"Which music direction would you most want?", options:[
+      "International dance-pop and remixes","House and melodic electronic","Disco, nu-disco and familiar edits","A balanced mix of all three"] },
+    es:{ title:"¿Qué dirección musical preferirías?", options:[
+      "Dance-pop internacional y remixes","House y electrónica melódica","Disco, nu-disco y versiones conocidas","Una mezcla equilibrada de las tres"] } },
+
+  { id:'q6', type:'rating',
+    en:{ title:"How interested are you in attending Vida Madriz: The First Tardeo?",
+      labels:["Not interested","","Unsure","","Very interested"] },
+    es:{ title:"¿Cuánto interés tienes en asistir a Vida Madriz: El Primer Tardeo?",
+      labels:["No me interesa","","No estoy segura","","Muy interesada"] } },
+
+  { id:'q7', type:'single',
+    en:{ title:"What ticket price would feel reasonable?",
+      desc:"For a five-to-six-hour DJ-led tardeo with a carefully managed guest experience. Drinks purchased separately.",
+      options:["Under €15","€15–€20","€21–€25","€26–€30","More than €30"] },
+    es:{ title:"¿Qué precio de entrada te parecería razonable?",
+      desc:"Para un tardeo de cinco a seis horas con DJ y una experiencia de invitadas cuidadosamente gestionada. Las bebidas se compran aparte.",
+      options:["Menos de 15€","15€–20€","21€–25€","26€–30€","Más de 30€"] } },
+
+  { id:'q8', type:'single',
+    en:{ title:"How would you most likely attend?", options:[
+      "With a female friend","With another invited friend","Alone","I am not sure yet"] },
+    es:{ title:"¿Cómo asistirías más probablemente?", options:[
+      "Con una amiga","Con otra persona invitada","Sola","Aún no lo sé"] } },
+
+  { id:'q9', type:'single',
+    en:{ title:"Would you be interested in a future Vida Madriz membership?", options:[
+      "Yes","Maybe, depending on the benefits","I am interested in events only","No"] },
+    es:{ title:"¿Te interesaría una futura membresía de Vida Madriz?", options:[
+      "Sí","Tal vez, según los beneficios","Solo me interesan los eventos","No"] } },
+
+  { id:'q10', type:'single',
+    en:{ title:"Would you like early access to the first event?", options:[
+      "Yes, join The Vida List","No, survey only"] },
+    es:{ title:"¿Te gustaría tener acceso anticipado al primer evento?", options:[
+      "Sí, unirme a The Vida List","No, solo la encuesta"] } }
+];
+
+const vidaListContent = {
+  en:{ heading:"Join The Vida List", copy:"Receive early access to Vida Madriz: The First Tardeo and selected launch updates.",
+    firstName:"First name", email:"Email address", whatsapp:"WhatsApp number (optional)",
+    prefLang:"Preferred update language", prefOptions:["English","Spanish","Both"],
+    consent:"I agree to receive Vida Madriz event and launch communications. I can unsubscribe at any time." },
+  es:{ heading:"Únete a The Vida List", copy:"Recibe acceso anticipado a Vida Madriz: El Primer Tardeo y actualizaciones seleccionadas del lanzamiento.",
+    firstName:"Nombre", email:"Correo electrónico", whatsapp:"Número de WhatsApp (opcional)",
+    prefLang:"Idioma preferido para las actualizaciones", prefOptions:["Inglés","Español","Ambos"],
+    consent:"Acepto recibir comunicaciones de eventos y lanzamiento de Vida Madriz. Puedo darme de baja en cualquier momento." }
+};
+
+const closingContent = {
+  en:{ title:"Thank you.", l1:"Your answers will help shape the first Vida Madriz event.",
+    l2:"Vida List members will receive early launch information before the public release.",
+    l3:"Follow @vidamadriz for updates." },
+  es:{ title:"Gracias.", l1:"Tus respuestas ayudarán a dar forma al primer evento de Vida Madriz.",
+    l2:"Las integrantes de The Vida List recibirán información de lanzamiento anticipada antes de la publicación pública.",
+    l3:"Síguenos en @vidamadriz para más novedades." }
+};
+
+// Flow: 0 = intro, 1..10 = questions, 11 = vidaList (conditional), 12 = closing
+function totalSteps(){ return answers.q10 === questions[9][lang].options[0] || answers.q10 === questions[9].en.options[0] || answers.q10 === questions[9].es.options[0] ? 12 : 11; }
+
+function wantsVidaList(){
+  return answers.q10 === questions[9].en.options[0] || answers.q10 === questions[9].es.options[0];
+}
+
+function updateProgress(){
+  const last = wantsVidaList() ? 12 : 11;
+  const pct = Math.min(100, Math.round((stepIndex/last)*100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressDot').style.left = pct + '%';
+  document.getElementById('footerNote').textContent = T[lang].footer;
+}
+
+function render(){
+  updateProgress();
+  const card = document.getElementById('card');
+  card.innerHTML = '';
+
+  if(stepIndex === 0){ renderIntro(card); return; }
+  const qIdx = stepIndex - 1;
+  if(qIdx >= 0 && qIdx < questions.length){ renderQuestion(card, questions[qIdx]); return; }
+  if(wantsVidaList() && stepIndex === questions.length + 1){ renderVidaList(card); return; }
+  renderClosing(card);
+}
+
+function renderIntro(card){
+  const c = intro[lang];
+  card.innerHTML = `
+    <div class="eyebrow">Vida Madriz Society</div>
+    <h1 class="hero">${c.title}</h1>
+    <p class="body-text">${c.body}</p>
+    <div class="nav-row" style="justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="goNext()">${T[lang].start}</button>
+    </div>`;
+}
+
+function renderQuestion(card, q){
+  const c = q[lang];
+  let inner = `<div class="eyebrow">Q${questions.indexOf(q)+1} / ${questions.length}</div>
+    <h2 class="qtitle">${c.title}</h2>`;
+  if(c.desc) inner += `<p class="qdesc">${c.desc}</p>`;
+
+  if(q.type === 'single'){
+    inner += `<div class="options">`;
+    c.options.forEach(opt=>{
+      const sel = answers[q.id] === opt ? 'selected' : '';
+      inner += `<div class="opt radio ${sel}" onclick="selectSingle('${q.id}', this)" data-val="${escapeAttr(opt)}"><span class="mark"></span><span>${opt}</span></div>`;
+    });
+    inner += `</div>`;
+  } else if(q.type === 'multi'){
+    inner += `<p class="qdesc">${T[lang].selectUpTo2}</p><div class="options">`;
+    c.options.forEach(opt=>{
+      const arr = answers[q.id] || [];
+      const sel = arr.includes(opt) ? 'selected' : '';
+      inner += `<div class="opt checkbox ${sel}" onclick="selectMulti('${q.id}', this, ${q.max})" data-val="${escapeAttr(opt)}"><span class="mark"></span><span>${opt}</span></div>`;
+    });
+    inner += `</div>`;
+  } else if(q.type === 'dropdown'){
+    inner += `<select class="dropdown" onchange="answers['${q.id}']=this.value; refreshNav();">
+      <option value="">${T[lang].chooseOne}</option>`;
+    c.options.forEach(opt=>{
+      const sel = answers[q.id] === opt ? 'selected' : '';
+      inner += `<option value="${escapeAttr(opt)}" ${sel}>${opt}</option>`;
+    });
+    inner += `</select>`;
+  } else if(q.type === 'rating'){
+    inner += `<div class="rating-row">`;
+    for(let i=1;i<=5;i++){
+      const sel = answers[q.id] === i ? 'selected' : '';
+      inner += `<div class="rating-cell ${sel}" onclick="selectRating('${q.id}', ${i})">${i}</div>`;
+    }
+    inner += `</div><div class="rating-labels"><span>${c.labels[0]}</span><span>${c.labels[4]}</span></div>`;
+  }
+
+  inner += `<div class="hint-error" id="hintError">${T[lang].errorRequired}</div>
+    <div class="nav-row">
+      <button class="btn-ghost" onclick="goBack()">${T[lang].back}</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="goNext()">${T[lang].next}</button>
+    </div>`;
+  card.innerHTML = inner;
+}
+
+function renderVidaList(card){
+  const c = vidaListContent[lang];
+  card.innerHTML = `
+    <div class="eyebrow">Vida Madriz Society</div>
+    <h2 class="qtitle">${c.heading}</h2>
+    <p class="qdesc">${c.copy}</p>
+    <label class="field-label">${c.firstName} <span class="required-flag">*</span></label>
+    <input type="text" id="vl_name" value="${escapeAttr(vidaList.first_name)}" oninput="vidaList.first_name=this.value">
+    <label class="field-label">${c.email} <span class="required-flag">*</span></label>
+    <input type="email" id="vl_email" value="${escapeAttr(vidaList.email)}" oninput="vidaList.email=this.value">
+    <label class="field-label">${c.whatsapp}</label>
+    <input type="tel" id="vl_wa" value="${escapeAttr(vidaList.whatsapp)}" oninput="vidaList.whatsapp=this.value">
+    <label class="field-label">${c.prefLang}</label>
+    <div class="options" style="margin-bottom:18px;">
+      ${c.prefOptions.map(opt=>{
+        const sel = vidaList.pref_lang === opt ? 'selected' : '';
+        return `<div class="opt radio ${sel}" onclick="selectVLLang(this,'${escapeAttr(opt)}')"><span class="mark"></span><span>${opt}</span></div>`;
+      }).join('')}
+    </div>
+    <div class="consent-row" onclick="toggleConsent(this)">
+      <span class="mark ${vidaList.consent ? 'checked' : ''}"></span>
+      <span>${c.consent}</span>
+    </div>
+    <div class="hint-error" id="hintError">${T[lang].errorRequired}</div>
+    <div class="nav-row">
+      <button class="btn-ghost" onclick="goBack()">${T[lang].back}</button>
+      <button class="btn btn-primary" onclick="submitAll()">${T[lang].submit}</button>
+    </div>`;
+}
+
+function toggleConsent(el){
+  vidaList.consent = !vidaList.consent;
+  render();
+}
+function selectVLLang(el, val){
+  vidaList.pref_lang = val;
+  render();
+}
+
+function renderClosing(card){
+  const c = closingContent[lang];
+  card.innerHTML = `
+    <div class="closing-icon">✦</div>
+    <h1 class="hero">${c.title}</h1>
+    <p class="body-text">${c.l1}<br><br>${c.l2}<br><br>${c.l3}</p>`;
+}
+
+function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+
+function selectSingle(qid, el){
+  answers[qid] = el.getAttribute('data-val');
+  render();
+}
+function selectMulti(qid, el, max){
+  const val = el.getAttribute('data-val');
+  let arr = answers[qid] || [];
+  if(arr.includes(val)){
+    arr = arr.filter(v=>v!==val);
+  } else {
+    if(arr.length >= max) return;
+    arr = [...arr, val];
+  }
+  answers[qid] = arr;
+  render();
+}
+function selectRating(qid, val){
+  answers[qid] = val;
+  render();
+}
+
+function currentQuestion(){
+  const qIdx = stepIndex - 1;
+  if(qIdx >= 0 && qIdx < questions.length) return questions[qIdx];
+  return null;
+}
+
+function isAnswered(q){
+  if(!q) return true;
+  const v = answers[q.id];
+  if(q.type === 'multi') return Array.isArray(v) && v.length > 0;
+  return v !== undefined && v !== null && v !== '';
+}
+
+function goNext(){
+  const q = currentQuestion();
+  if(q && !isAnswered(q)){
+    const err = document.getElementById('hintError');
+    if(err) err.style.display = 'block';
+    return;
+  }
+  if(stepIndex === questions.length){
+    // just finished last question
+    if(wantsVidaList()){
+      stepIndex++;
+    } else {
+      stepIndex = questions.length + 2; // skip vida list -> closing
+      saveResponseOnly();
+    }
+    render();
+    return;
+  }
+  stepIndex++;
+  render();
+}
+
+function goBack(){
+  if(stepIndex > 0) stepIndex--;
+  render();
+}
+
+async function saveResponseOnly(){
+  if(!supabaseClient) return;
+  try{
+    await supabaseClient.from('vida_madriz_responses').insert([{
+      answers: answers,
+      language: lang,
+      wants_vida_list: false
+    }]);
+  }catch(e){ console.error('Supabase insert failed', e); }
+}
+
+function isValidEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || '');
+}
+
+async function submitAll(){
+  const nameOk = (vidaList.first_name || '').trim().length > 0;
+  const emailOk = isValidEmail(vidaList.email);
+  if(!nameOk || !emailOk || vidaList.consent !== true){
+    const err = document.getElementById('hintError');
+    if(err) err.style.display = 'block';
+    return;
+  }
+  if(supabaseClient){
+    try{
+      await supabaseClient.from('vida_madriz_responses').insert([{
+        answers: answers,
+        language: lang,
+        wants_vida_list: true
+      }]);
+      await supabaseClient.from('vida_list_signups').insert([{
+        first_name: vidaList.first_name,
+        email: vidaList.email,
+        whatsapp: vidaList.whatsapp,
+        preferred_language: vidaList.pref_lang,
+        consent: vidaList.consent
+      }]);
+    }catch(e){ console.error('Supabase insert failed', e); }
+  }
+  stepIndex = questions.length + 2;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
